@@ -19,7 +19,11 @@ exports.loginFormInfo = function (callback) {
                   done: function (err, window) {
                       var $ = window.$;
                       window.$("form input").each(function () {
-                          loginFormInfo[$(this).attr('name')] = $(this).attr('value');
+                          var value = $(this).attr('value');
+                          if(value == undefined || value == 'undefined'){
+                              value = '';
+                          }
+                          loginFormInfo[$(this).attr('name')] = value;
                       });
                       window.$("select").each(function () {
                           loginFormInfo[$(this).attr('name')] = $($(this).find('option')[0]).attr('value');
@@ -28,7 +32,6 @@ exports.loginFormInfo = function (callback) {
                       for(var i=0; i<noneUseParamNames.length; i++) {
                           delete loginFormInfo[noneUseParamNames[i]];
                       }
-                      loginFormInfo['NewVerticalLoginTool1$txtInsureCode'] = '';
                       callback(loginFormInfo);
                   }
               });
