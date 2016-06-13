@@ -28,6 +28,7 @@ exports.loginFormInfo = function (callback) {
                       for(var i=0; i<noneUseParamNames.length; i++) {
                           delete loginFormInfo[noneUseParamNames[i]];
                       }
+                      loginFormInfo['NewVerticalLoginTool1$txtInsureCode'] = '';
                       callback(loginFormInfo);
                   }
               });
@@ -38,6 +39,7 @@ exports.loginAction = function (formDataObj, callback) {
     var url = 'http://travel.pipi88.cn/Rescue/Login.aspx';
     var options = {
         url: url,
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
         formData: formDataObj
     };
 
@@ -53,7 +55,7 @@ exports.loginAction = function (formDataObj, callback) {
                 console.log(item, i);
             });
         }
-        callback(JSON.stringify(cookies));
+        callback(cookies);
     });
 
 };
