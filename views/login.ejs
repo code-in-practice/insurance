@@ -12,32 +12,52 @@
     <div class="weui_cell">
       <div class="weui_cell_hd"><label class="weui_label">用户名</label></div>
       <div class="weui_cell_bd weui_cell_primary">
-        <input class="weui_input" type="text" placeholder="用户名">
+        <input class="weui_input" id="username" type="text" placeholder="用户名">
       </div>
     </div>
     <div class="weui_cell weui_cells_form">
       <div class="weui_cell_hd"><label class="weui_label">密码</label></div>
       <div class="weui_cell_bd weui_cell_primary">
-        <input class="weui_input" type="password" placeholder="请输入密码">
+        <input class="weui_input" id="password" type="password" placeholder="请输入密码">
       </div>
     </div>
     <div class="weui_cell weui_vcode">
       <div class="weui_cell_hd"><label class="weui_label">验证码</label></div>
       <div class="weui_cell_bd weui_cell_primary">
-        <input class="weui_input" type="password" placeholder="请输入验证码">
+        <input class="weui_input" id="captcha" type="" placeholder="请输入验证码">
       </div>
       <div class="weui_cell_ft">
-        <img src="/login/png" onclick="refreshpng(this);">
+        <img src="/login/png" onclick="refreshPNG(this);">
       </div>
     </div>
   </div>
+
+  <a href="javascript:;" id="login" class="weui_btn weui_btn_primary">登录</a>
   </body>
+  <script src="/javascripts/jquery.min.js"></script>
   <script>
 
-    function  refreshpng(thisDOM) {
+    function  refreshPNG(thisDOM) {
       var t = new Date().getTime();
       thisDOM.src = "/login/png?"+t;
     }
+
+    document.querySelector('#login').onclick = function () {
+      var username= document.getElementById('username').value;
+      var password= document.getElementById('password').value;
+      var captcha= document.getElementById('captcha').value;
+
+      var url = "/login";
+
+      var formData = {
+        username: username,
+        password: password,
+        captcha: captcha
+      };
+      $.post(url, formData, function (data) {
+          console.log(data);
+      })
+    };
 
   </script>
 </html>

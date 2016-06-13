@@ -1,15 +1,33 @@
 var express = require('express');
 var router = express.Router();
 
+var requestHelper = require('./requestHelper');
+
 var captchapng = require('captchapng');
 
 router.get('/', function(req, res, next) {
   res.render('login', {});
 });
 
+router.post('/', function(req, res, next) {
+  var username = req.body.username;
+  var password = req.body.password;
+  var captcha = req.body.captcha;
+
+  requestHelper.loginFormInfo(function (loginFormInfo) {
+    loginFormInfo['NewVerticalLoginTool1$txtUserName'] = username;
+    loginFormInfo['NewVerticalLoginTool1$txtPassword'] = password;
+    
+    requestHelper.loginAction(loginFormInfo, function (cookies) {
+      res.send({code:0, cookies: cookies});
+    });
+  })
+});
+
+
 router.get('/png', function (req, res, next) {
-  var width=!isNaN(parseInt(req.query.width))?parseInt(req.query.width):100;
-  var height=!isNaN(parseInt(req.query.height))?parseInt(req.query.height):30;
+  var width=!isNaN(parseInt(req.query.width))?parseInt(req.query.width):108;
+  var height=!isNaN(parseInt(req.query.height))?parseInt(req.query.height):44;
 
   var code = parseInt(Math.random()*9000+1000);
   //req.session.checkcode = code;
