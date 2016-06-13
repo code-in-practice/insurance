@@ -6,7 +6,7 @@ var requestHelper = require('./requestHelper');
 var captchapng = require('captchapng');
 
 router.get('/', function(req, res, next) {
-  res.render('login', {});
+  res.render('login', {title: "登录"});
 });
 
 router.post('/', function(req, res, next) {
@@ -19,6 +19,7 @@ router.post('/', function(req, res, next) {
     loginFormInfo['NewVerticalLoginTool1$txtPassword'] = password;
     
     requestHelper.loginAction(loginFormInfo, function (cookies) {
+      req.session.asp = cookies;
       res.send({code:0, cookies: cookies});
     });
   })
