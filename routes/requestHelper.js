@@ -25,17 +25,11 @@ exports.loginFormInfo = function (callback) {
         }
     };
 
-    var req = request(options);
-    req.on('error', function (err) {
-        winston.info(err);
-    });
-
-    req.on('response', function (res) {
+    request(options).on('response', function (res) {
         var bufferHelper = new BufferHelper();
         res.on('data', function (chunk) {
             bufferHelper.concat(chunk);
-        });
-        res.on('end', function () {
+        }).on('end', function () {
             var result = iconv.decode(bufferHelper.toBuffer(), 'GBK');
             var loginFormInfo = {};
             var noUseParamNames = ['NewVerticalLoginTool1$btnDownload', 'NewVerticalLoginTool1$btnOpen', 'btnLogin'];
@@ -63,6 +57,8 @@ exports.loginFormInfo = function (callback) {
                           }
                       });
         });
+    }).on('error', function (err) {
+        winston.info(err);
     });
 
 };
@@ -112,12 +108,7 @@ exports.userInfo = function (cookies, callback) {
         }
     };
 
-    var req = request(options);
-    req.on('error', function (err) {
-        winston.info(err);
-    });
-    
-    req.on('response', function (res) {
+    request(options).on('response', function (res) {
         var bufferHelper = new BufferHelper();
         res.on('data', function (chunk) {
             bufferHelper.concat(chunk);
@@ -143,5 +134,7 @@ exports.userInfo = function (cookies, callback) {
                           }
                       });
         });
+    }).on('error', function (err) {
+        winston.info(err);
     });
 };
