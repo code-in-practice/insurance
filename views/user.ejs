@@ -1,38 +1,25 @@
 <!DOCTYPE html>
 <html>
-  <% include header.ejs%>
-  <body>
-    <div class="container">
-      <div class="hd">
-        <h1 class="page_title"><%=title%></h1>
-      </div>
-      <div class="bd">
-        <div class="weui_cells weui_cells_form">
-          <div class="weui_cell">
-            <div class="weui_cell_hd"><label class="weui_label">用户名</label></div>
-            <div class="weui_cell_bd weui_cell_primary">
-              <input class="weui_input" id="username" type="text" placeholder="用户名">
-            </div>
-          </div>
-          <div class="weui_cell weui_cells_form">
-            <div class="weui_cell_hd"><label class="weui_label">密码</label></div>
-            <div class="weui_cell_bd weui_cell_primary">
-              <input class="weui_input" id="password" type="password" placeholder="请输入密码">
-            </div>
-          </div>
-          <div class="weui_cell weui_vcode">
-            <div class="weui_cell_hd"><label class="weui_label">验证码</label></div>
-            <div class="weui_cell_bd weui_cell_primary">
-              <input class="weui_input" id="captcha" type="" placeholder="请输入验证码">
-            </div>
-            <div class="weui_cell_ft">
-              <img src="/login/png" onclick="refreshPNG(this);">
-            </div>
-          </div>
-        </div>
-      </div>
-
+<% include header.ejs %>
+<body>
+<div class="container">
+    <div class="hd">
+        <h1 class="page_title"><%= title %></h1>
     </div>
-    <% include footer.ejs%>
-  </body>
+    <div class="bd">
+        <div class="weui_cells">
+            <% userItems.forEach(function (item) { %>
+            <div class="weui_cell">
+                <div class="weui_cell_bd weui_cell_primary">
+                    <p><%= item.desc %></p>
+                </div>
+                <div class="weui_cell_ft"><%= item.val %></div>
+            </div>
+            <% }) %>
+        </div>
+    </div>
+
+</div>
+<% include footer.ejs %>
+</body>
 </html>

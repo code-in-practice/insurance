@@ -6,8 +6,13 @@ var request = require('request');
 var jsdom = require('jsdom');
 var fs = require('fs');
 var jqueryFile = fs.readFileSync(__dirname + "/jquery.js", "utf-8");
+var iconv = require('iconv-lite');
+var BufferHelper = require('bufferhelper');
+
 var winston = require('winston');
 winston.level = 'debug';
+
+var userAgent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.79 Safari/537.36';
 
 exports.loginFormInfo = function (callback) {
     var url = 'http://travel.pipi88.cn/Rescue/Login.aspx';
@@ -42,7 +47,10 @@ exports.loginAction = function (formDataObj, callback) {
     var url = 'http://travel.pipi88.cn/Rescue/Login.aspx';
     var options = {
         url: url,
-        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'User-Agent': userAgent
+        },
         formData: formDataObj
     };
 
@@ -64,7 +72,6 @@ exports.loginAction = function (formDataObj, callback) {
 exports.userInfo = function (cookies, callback) {
     var url = 'http://travel.pipi88.cn/Rescue/UserManager/AgentInfo.aspx';
 
-    var userInfo = {};
     var cookieHeaders = [];
     for(var i=0; i<cookies.length; i++) {
         cookieHeaders.push(cookies[i].split(';')[0]);
@@ -74,27 +81,45 @@ exports.userInfo = function (cookies, callback) {
 
     var options = {
         url: url,
+        encoding: null,
         headers: {
             'Cookie': cookieStr,
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-            'Accept-Language': 'zh-CN,zh;q=0.8,en-US;q=0.6,en;q=0.4',
-            'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.79 Safari/537.36'
+            'User-Agent': userAgent
         }
     };
 
-    request.get(options, function (error, response, body) {
-        console.log(body);
-        callback({});
+    var req = request(options);
+    req.on('error', function (err) {
+        console.log(err);
+    });
+    
+    req.on('response', function (res) {
+        var bufferHelper = new BufferHelper();
+        res.on('data', function (chunk) {
+            bufferHelper.concat(chunk);
+        });
+        res.on('end', function () {
+            var result = iconv.decode(bufferHelper.toBuffer(), 'GBK');
+            jsdom.env({
+                          html: result,
+                          src: [jqueryFile],
+                          done: function (err, window) {
+                              var $ = window.$;
+                              var userItems = [];
+                              window.$("table.writetbl tr").each(function () {
+                                  var userItem = {};
+                                  userItem.desc = $(this).find('th').text().trim();
+                                  userItem.val = $(this).find('td').text().trim();
+                                  //winston.debug('item.desc', userItem.desc);
+                                  //winston.debug('item.val', userItem.val);
+                                  userItems.push(userItem);
+                              });
+                              winston.debug('userItems', userItems);
+                              callback(userItems);
+                          }
+                      });
+        });
     });
 
-    // jsdom.env({
-    //               url: url,
-    //               src: [jqueryFile],
-    //               cookie: cookieStr,
-    //               done: function (err, window) {
-    //                   var $ = window.$;
-    //                   winston.debug('body', window.$("body"));
-    //                   callback(userInfo);
-    //               }
-    //           });
+
 };
