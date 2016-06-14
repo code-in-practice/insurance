@@ -17,30 +17,54 @@ var userAgent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like
 exports.loginFormInfo = function (callback) {
     var url = 'http://travel.pipi88.cn/Rescue/Login.aspx';
 
-    var loginFormInfo = {};
-    var noUseParamNames = ['NewVerticalLoginTool1$btnDownload', 'NewVerticalLoginTool1$btnOpen', 'btnLogin'];
-    jsdom.env({
-                  url: url,
-                  src: [jqueryFile],
-                  done: function (err, window) {
-                      var $ = window.$;
-                      window.$("form input").each(function () {
-                          var value = $(this).attr('value');
-                          if(value == undefined || value == 'undefined'){
-                              value = '';
+    var options = {
+        url: url,
+        encoding: null,
+        headers: {
+            'User-Agent': userAgent
+        }
+    };
+
+    var req = request(options);
+    req.on('error', function (err) {
+        winston.info(err);
+    });
+
+    req.on('response', function (res) {
+        var bufferHelper = new BufferHelper();
+        res.on('data', function (chunk) {
+            bufferHelper.concat(chunk);
+        });
+        res.on('end', function () {
+            var result = iconv.decode(bufferHelper.toBuffer(), 'GBK');
+            var loginFormInfo = {};
+            var noUseParamNames = ['NewVerticalLoginTool1$btnDownload', 'NewVerticalLoginTool1$btnOpen', 'btnLogin'];
+            jsdom.env({
+                          html: result,
+                          src: [jqueryFile],
+                          done: function (err, window) {
+                              var $ = window.$;
+                              window.$("form input").each(function () {
+                                  var value = $(this).attr('value');
+                                  if(value == undefined || value == 'undefined'){
+                                      value = '';
+                                  }
+                                  loginFormInfo[$(this).attr('name')] = value;
+                              });
+                              window.$("select").each(function () {
+                                  loginFormInfo[$(this).attr('name')] = $($(this).find('option')[0]).attr('value');
+                              });
+
+                              for(var i=0; i < noUseParamNames.length; i++) {
+                                  delete loginFormInfo[noUseParamNames[i]];
+                              }
+                              winston.debug('loginFormInfo', loginFormInfo);
+                              callback(loginFormInfo);
                           }
-                          loginFormInfo[$(this).attr('name')] = value;
                       });
-                      window.$("select").each(function () {
-                          loginFormInfo[$(this).attr('name')] = $($(this).find('option')[0]).attr('value');
-                      });
-                      
-                      for(var i=0; i < noUseParamNames.length; i++) {
-                          delete loginFormInfo[noUseParamNames[i]];
-                      }
-                      callback(loginFormInfo);
-                  }
-              });
+        });
+    });
+
 };
 
 exports.loginAction = function (formDataObj, callback) {
@@ -90,7 +114,7 @@ exports.userInfo = function (cookies, callback) {
 
     var req = request(options);
     req.on('error', function (err) {
-        console.log(err);
+        winston.info(err);
     });
     
     req.on('response', function (res) {
@@ -120,6 +144,4 @@ exports.userInfo = function (cookies, callback) {
                       });
         });
     });
-
-
 };
