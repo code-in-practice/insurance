@@ -138,3 +138,62 @@ exports.userInfo = function (cookies, callback) {
         winston.info(err);
     });
 };
+
+exports.historicalRecordsList = function (cookies, callback) {
+    var url = 'http://travel.pipi88.cn/Rescue/Statistics/HistoricalRecords.aspx?MemberId=@MemberId';
+
+    var cookieHeaders = [];
+    for(var i=0; i<cookies.length; i++) {
+        cookieHeaders.push(cookies[i].split(';')[0]);
+    }
+    var cookieStr = cookieHeaders.join(';');
+    winston.debug('cookieStr', cookieStr);
+
+    var options = {
+        url: url,
+        encoding: null,
+        headers: {
+            'Cookie': cookieStr,
+            'User-Agent': userAgent
+        }
+    };
+
+    request(options).on('response', function (res) {
+        var bufferHelper = new BufferHelper();
+        res.on('data', function (chunk) {
+            bufferHelper.concat(chunk);
+        });
+        res.on('end', function () {
+            var result = iconv.decode(bufferHelper.toBuffer(), 'GBK');
+            jsdom.env({
+                          html: result,
+                          src: [jqueryFile],
+                          done: function (err, window) {
+                              var $ = window.$;
+                              var orderItems = [];
+                              window.$("table#MainIssues_grid tr").each(function (i, itemRow) {
+                                  var orderItem = [];
+                                  if(i == 0){
+                                      $(itemRow).find('th').each(function (j, item) {
+                                          if(j > 0){
+                                              orderItem.push($(item).text().trim())
+                                          }
+                                      })
+                                  }else {
+                                      $(itemRow).find('td').each(function (j, item) {
+                                          if(j > 0){
+                                              orderItem.push($(item).text().trim())
+                                          }
+                                      })
+                                  }
+                                  orderItems.push(orderItem);
+                              });
+                              winston.debug('orderItems', orderItems);
+                              callback(orderItems);
+                          }
+                      });
+        });
+    }).on('error', function (err) {
+        winston.info(err);
+    });
+};

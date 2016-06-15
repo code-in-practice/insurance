@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<% include header.ejs %>
+<body ontouchstart="">
+<div class="container">
+    <div class="hd">
+        <h1 class="page_title"><%= title %></h1>
+    </div>
+    <div class="bd">
+        <div class="weui_cells">
+            <% orderItems.forEach(function (itemRow, index) { %>
+                <div class="weui_cell">
+                    <div class="weui_cell_bd weui_cell_primary">
+                        <p><%= itemRow[0] %></p>
+                    </div>
+                    <div class="weui_cell_ft"><%= itemRow[5] %></div>
+                    <div class="weui_cell_ft"><%= itemRow[6] %></div>
+                    <div class="weui_cell_ft"><%= itemRow[7] %></div>
+                    <div class="weui_cell_ft"><%= itemRow[8] %></div>
+                </div>
+            <% }) %>
+        </div>
+    </div>
+
+</div>
+<% include footer.ejs %>
+</body>
+</html>
