@@ -8,12 +8,17 @@
     </div>
     <div class="bd">
         <div class="weui_cells">
+            <% orderItems.forEach(function (itemRow, index) { %>
                 <div class="weui_cell">
                     <div class="weui_cell_bd weui_cell_primary">
-                        <p><%= key %></p>
+                        <p><%= itemRow[0] %></p>
                     </div>
-                    <div class="weui_cell_ft"><%= insuranceFormInfo[key] %></div>
+                    <div class="weui_cell_ft"><%= itemRow[5] %></div>
+                    <div class="weui_cell_ft"><%= itemRow[6] %></div>
+                    <div class="weui_cell_ft"><%= itemRow[7] %></div>
+                    <div class="weui_cell_ft"><%= itemRow[8] %></div>
                 </div>
+            <% }) %>
         </div>
     </div>
 

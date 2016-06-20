@@ -14,6 +14,10 @@ winston.level = 'debug';
 
 var userAgent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.79 Safari/537.36';
 
+/**
+ * 登录页面
+ * @param callback
+ */
 exports.loginFormInfo = function (callback) {
     var url = 'http://travel.pipi88.cn/Rescue/Login.aspx';
 
@@ -63,6 +67,11 @@ exports.loginFormInfo = function (callback) {
 
 };
 
+/**
+ * 登录
+ * @param formDataObj
+ * @param callback
+ */
 exports.loginAction = function (formDataObj, callback) {
     var url = 'http://travel.pipi88.cn/Rescue/Login.aspx';
     var options = {
@@ -88,7 +97,11 @@ exports.loginAction = function (formDataObj, callback) {
     });
 };
 
-
+/**
+ * 用户中心
+ * @param cookies
+ * @param callback
+ */
 exports.userInfo = function (cookies, callback) {
     var url = 'http://travel.pipi88.cn/Rescue/UserManager/AgentInfo.aspx';
 
@@ -139,6 +152,11 @@ exports.userInfo = function (cookies, callback) {
     });
 };
 
+/**
+ * 保单查询
+ * @param cookies
+ * @param callback
+ */
 exports.historicalRecordsList = function (cookies, callback) {
     var url = 'http://travel.pipi88.cn/Rescue/Statistics/HistoricalRecords.aspx?MemberId=@MemberId';
 
@@ -196,4 +214,70 @@ exports.historicalRecordsList = function (cookies, callback) {
     }).on('error', function (err) {
         winston.info(err);
     });
+};
+
+/**
+ * 保单录入页面
+ * @param cookies
+ * @param callback
+ */
+exports.insurancePolicyInfo = function (cookies, callback) {
+    var url = 'http://travel.pipi88.cn/Rescue/DocumentsManager/DocumentsInsert.aspx';
+
+    var cookieHeaders = [];
+    for(var i=0; i<cookies.length; i++) {
+        cookieHeaders.push(cookies[i].split(';')[0]);
+    }
+    var cookieStr = cookieHeaders.join(';');
+    winston.debug('cookieStr', cookieStr);
+
+    var options = {
+        url: url,
+        encoding: null,
+        headers: {
+            'Cookie': cookieStr,
+            'User-Agent': userAgent
+        }
+    };
+
+    request(options).on('response', function (res) {
+        var bufferHelper = new BufferHelper();
+        res.on('data', function (chunk) {
+            bufferHelper.concat(chunk);
+        }).on('end', function () {
+            var result = iconv.decode(bufferHelper.toBuffer(), 'GBK');
+            var insuranceFormInfo = {};
+            jsdom.env({
+                          html: result,
+                          src: [jqueryFile],
+                          done: function (err, window) {
+                              var $ = window.$;
+                              window.$("form input").each(function () {
+                                  var value = $(this).attr('value');
+                                  if(value == undefined || value == 'undefined'){
+                                      value = '';
+                                  }
+                                  insuranceFormInfo[$(this).attr('name')] = value;
+                              });
+                              window.$("select").each(function () {
+                                  insuranceFormInfo[$(this).attr('name')] = $($(this).find('option')[0]).attr('value');
+                              });
+
+                              window.$("table.writetbl tr").each(function () {
+                                  var value = $(this).attr('value');
+                                  if(value == undefined || value == 'undefined'){
+                                      value = '';
+                                  }
+                                  insuranceFormInfo[$(this).attr('name')] = value;
+                              });
+
+                              winston.debug('insuranceFormInfo', insuranceFormInfo);
+                              callback(insuranceFormInfo);
+                          }
+                      });
+        });
+    }).on('error', function (err) {
+        winston.info(err);
+    });
+
 };
