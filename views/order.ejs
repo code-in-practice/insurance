@@ -8,12 +8,14 @@
     </div>
     <div class="bd">
         <div class="weui_cells">
+            <%Object.keys(insuranceFormInfo).forEach(function(key){%>
                 <div class="weui_cell">
                     <div class="weui_cell_bd weui_cell_primary">
                         <p><%= key %></p>
                     </div>
                     <div class="weui_cell_ft"><%= insuranceFormInfo[key] %></div>
                 </div>
+            <%})%>
         </div>
     </div>
 

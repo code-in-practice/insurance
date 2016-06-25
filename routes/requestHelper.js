@@ -246,38 +246,61 @@ exports.insurancePolicyInfo = function (cookies, callback) {
             bufferHelper.concat(chunk);
         }).on('end', function () {
             var result = iconv.decode(bufferHelper.toBuffer(), 'GBK');
-            var insuranceFormInfo = {};
-            jsdom.env({
-                          html: result,
-                          src: [jqueryFile],
-                          done: function (err, window) {
-                              var $ = window.$;
-                              window.$("form input").each(function () {
-                                  var value = $(this).attr('value');
-                                  if(value == undefined || value == 'undefined'){
-                                      value = '';
-                                  }
-                                  insuranceFormInfo[$(this).attr('name')] = value;
-                              });
-                              window.$("select").each(function () {
-                                  insuranceFormInfo[$(this).attr('name')] = $($(this).find('option')[0]).attr('value');
-                              });
+            parseInsuranceFormInfo(result, function (err, insuranceFormInfo) {
+                callback(err, insuranceFormInfo);
+            })
 
-                              window.$("table.writetbl tr").each(function () {
-                                  var value = $(this).attr('value');
-                                  if(value == undefined || value == 'undefined'){
-                                      value = '';
-                                  }
-                                  insuranceFormInfo[$(this).attr('name')] = value;
-                              });
-
-                              winston.debug('insuranceFormInfo', insuranceFormInfo);
-                              callback(insuranceFormInfo);
-                          }
-                      });
         });
     }).on('error', function (err) {
         winston.info(err);
     });
+};
 
+var parseInsuranceFormInfo = function (html, callback) {
+    var insuranceFormInfo = {};
+    var TopIssues_ServiceId = {};
+    jsdom.env(
+        {
+            html: html,
+            src: [jqueryFile],
+            done: function (err, window) {
+                var $ = window.$;
+                // 找到所有input
+                window.$("form#form1 input, form#form1 select").each(function () {
+                    var nodeName = $(this).prop('nodeName');
+                    var name = $(this).attr('name');
+                    var value = '';
+                    var textInput = true;
+                    if(nodeName === 'INPUT'){
+                        if($(this).attr('type') === 'checkbox'){
+                            textInput = false;
+                            if($(this).attr('checked') === 'checked'){
+                                value = 'on';
+                                insuranceFormInfo[name] = value;
+                            }
+                        }else if($(this).attr('type') === 'radio') {
+                            textInput = false;
+                            value = window.$("input[name='"+name+"']:checked").val();
+                            insuranceFormInfo[name] = value;
+                        }else {
+                            value = $(this).attr('value');
+                        }
+                    }else if(nodeName = 'SELECT') {
+                        value = $($(this).find('option')[0]).val();
+                    }else {
+                        winston.debug('nodeName is :', nodeName);
+                    }
+                    if (value == undefined || value == 'undefined') {
+                        value = '';
+                    }
+                    if(textInput){
+                        insuranceFormInfo[name] = value;
+                    }
+                });
+
+                //winston.debug('insuranceFormInfo', JSON.stringify(insuranceFormInfo));
+                callback(null, insuranceFormInfo);
+            }
+        }
+    );
 };

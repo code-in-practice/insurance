@@ -19,7 +19,8 @@ router.get('/history', function(req, res, next) {
 router.get('/', function(req, res, next) {
   var cookies = req.session.asp;
   if(cookies) {
-    requestHelper.insurancePolicyInfo(cookies, function (insuranceFormInfo) {
+    requestHelper.insurancePolicyInfo(cookies, function (err, insuranceFormInfo) {
+      
       res.render('order', {title: "保单录入", insuranceFormInfo: insuranceFormInfo});
     });
   }else {
