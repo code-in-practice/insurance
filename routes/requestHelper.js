@@ -110,7 +110,6 @@ exports.userInfo = function (cookies, callback) {
         cookieHeaders.push(cookies[i].split(';')[0]);
     }
     var cookieStr = cookieHeaders.join(';');
-    winston.debug('cookieStr', cookieStr);
 
     var options = {
         url: url,
@@ -283,22 +282,24 @@ var parseInsuranceFormInfo = function (html, callback) {
                             value = window.$("input[name='"+name+"']:checked").val();
                             insuranceFormInfo[name] = value;
                         }else {
-                            value = $(this).attr('value');
+                            // text or hidden
+                            value = $(this).val();
                         }
                     }else if(nodeName = 'SELECT') {
-                        value = $($(this).find('option')[0]).val();
+                        value = $($(this).find('option:selected')).val();
+                        winston.debug('selected name: ', name, ': ', $($(this).find('option:selected')).text(), 'value: ', value);
                     }else {
                         winston.debug('nodeName is :', nodeName);
                     }
-                    if (value == undefined || value == 'undefined') {
-                        value = '';
-                    }
+                    // if (value == undefined || value == 'undefined') {
+                    //     value = '';
+                    // }
                     if(textInput){
                         insuranceFormInfo[name] = value;
                     }
                 });
 
-                //winston.debug('insuranceFormInfo', JSON.stringify(insuranceFormInfo));
+                winston.debug('insuranceFormInfo', insuranceFormInfo);
                 callback(null, insuranceFormInfo);
             }
         }

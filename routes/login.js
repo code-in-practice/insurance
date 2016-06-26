@@ -1,6 +1,8 @@
 var express = require('express');
 var router = express.Router();
 
+var winston = require('winston');
+winston.level = 'debug';
 var requestHelper = require('./requestHelper');
 
 var captchapng = require('captchapng');
@@ -10,8 +12,8 @@ router.get('/', function(req, res, next) {
 });
 
 router.post('/', function(req, res, next) {
-  var username = req.body.username;
-  var password = req.body.password;
+  var username = req.body.username || 'shunjiean01';
+  var password = req.body.password || 4539;
   var captcha = req.body.captcha;
 
   requestHelper.loginFormInfo(function (loginFormInfo) {
@@ -20,6 +22,7 @@ router.post('/', function(req, res, next) {
     
     requestHelper.loginAction(loginFormInfo, function (cookies) {
       req.session.asp = cookies;
+      winston.debug("cookies: ", cookies);
       res.send({code:0, cookies: cookies});
     });
   })
