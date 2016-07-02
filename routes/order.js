@@ -19,14 +19,28 @@ router.get('/history', function(req, res, next) {
 router.get('/', function(req, res, next) {
   var cookies = req.session.asp;
   if(cookies) {
-    requestHelper.insurancePolicyInfo(cookies, function (err, insuranceFormInfo) {
-      
-      res.render('order', {title: "保单录入", insuranceFormInfo: insuranceFormInfo});
-    });
+    var serviceId = req.query.serviceId;
+    var productId = req.query.productId;
+    var insuranceFormInfo = req.session.insuranceFormInfo;
+    if(serviceId && productId && insuranceFormInfo){
+      insuranceFormInfo['ctl00$TopIssues$ServiceId'] = serviceId;
+      insuranceFormInfo['ctl00$TopIssues$ProductId'] = productId;
+      insuranceFormInfo['__EVENTTARGET'] = 'ctl00$TopIssues$ServiceId';
+      delete insuranceFormInfo['ctl00$BottomIssues$btnSave'];
+      delete insuranceFormInfo['ctl00$BottomIssues$btnReset'];
+      requestHelper.insurancePolicyInfoPost(cookies, insuranceFormInfo, function (err, insuranceFormInfo) {
+        req.session.insuranceFormInfo = insuranceFormInfo;
+        res.render('order', {title: "保单录入", insuranceFormInfo: insuranceFormInfo});
+      });
+    }else {
+      requestHelper.insurancePolicyInfoGet(cookies, function (err, insuranceFormInfo) {
+        req.session.insuranceFormInfo = insuranceFormInfo;
+        res.render('order', {title: "保单录入", insuranceFormInfo: insuranceFormInfo});
+      });
+    }
   }else {
     res.redirect('/login');
   }
-
 });
 
 module.exports = router;

@@ -220,7 +220,7 @@ exports.historicalRecordsList = function (cookies, callback) {
  * @param cookies
  * @param callback
  */
-exports.insurancePolicyInfo = function (cookies, callback) {
+exports.insurancePolicyInfoGet = function (cookies, callback) {
     var url = 'http://travel.pipi88.cn/Rescue/DocumentsManager/DocumentsInsert.aspx';
 
     var cookieHeaders = [];
@@ -255,6 +255,42 @@ exports.insurancePolicyInfo = function (cookies, callback) {
     });
 };
 
+exports.insurancePolicyInfoPost = function (cookies, insuranceFormInfo, callback) {
+    var url = 'http://travel.pipi88.cn/Rescue/DocumentsManager/DocumentsInsert.aspx';
+    winston.info('---------------post-------------------');
+    
+    var cookieHeaders = [];
+    for(var i=0; i<cookies.length; i++) {
+        cookieHeaders.push(cookies[i].split(';')[0]);
+    }
+    var cookieStr = cookieHeaders.join(';');
+
+    var options = {
+        url: url,
+        encoding: null,
+        headers: {
+            'Cookie': cookieStr,
+            'User-Agent': userAgent
+        },
+        formData: insuranceFormInfo
+    };
+
+    request.post(options).on('response', function (res) {
+        var bufferHelper = new BufferHelper();
+        res.on('data', function (chunk) {
+            bufferHelper.concat(chunk);
+        }).on('end', function () {
+            var result = iconv.decode(bufferHelper.toBuffer(), 'GBK');
+            parseInsuranceFormInfo(result, function (err, insuranceFormInfo) {
+                callback(err, insuranceFormInfo);
+            })
+
+        });
+    }).on('error', function (err) {
+        winston.info(err);
+    });
+};
+
 var parseInsuranceFormInfo = function (html, callback) {
     var insuranceFormInfo = {};
     var TopIssues_ServiceId = {};
@@ -269,16 +305,16 @@ var parseInsuranceFormInfo = function (html, callback) {
                     var nodeName = $(this).prop('nodeName');
                     var name = $(this).attr('name');
                     var value = '';
-                    var textInput = true;
+                    var textOrSelect = true;
                     if(nodeName === 'INPUT'){
                         if($(this).attr('type') === 'checkbox'){
-                            textInput = false;
+                            textOrSelect = false;
                             if($(this).attr('checked') === 'checked'){
                                 value = 'on';
                                 insuranceFormInfo[name] = value;
                             }
                         }else if($(this).attr('type') === 'radio') {
-                            textInput = false;
+                            textOrSelect = false;
                             value = window.$("input[name='"+name+"']:checked").val();
                             insuranceFormInfo[name] = value;
                         }else {
@@ -291,15 +327,12 @@ var parseInsuranceFormInfo = function (html, callback) {
                     }else {
                         winston.debug('nodeName is :', nodeName);
                     }
-                    // if (value == undefined || value == 'undefined') {
-                    //     value = '';
-                    // }
-                    if(textInput){
+                    if(textOrSelect){
                         insuranceFormInfo[name] = value;
                     }
                 });
 
-                winston.debug('insuranceFormInfo', insuranceFormInfo);
+                // winston.debug('insuranceFormInfo', insuranceFormInfo);
                 callback(null, insuranceFormInfo);
             }
         }
