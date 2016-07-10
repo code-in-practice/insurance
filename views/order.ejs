@@ -12,7 +12,7 @@
                 <div class="weui_cells_title">保险类型</div>
                 <div class="weui_cell weui_cell_select">
                     <div class="weui_cell_bd weui_cell_primary">
-                        <select class="weui_select" name="ctl00$TopIssues$ServiceId" id="TopIssues_ServiceId">
+                        <select class="weui_select" name="ctl00$TopIssues$ServiceId" id="TopIssues_ServiceId" onchange="reloadServiceId();">
                             <%insuranceFormInfoSelect.TopIssues_ServiceId.options.forEach(function(option, index){%>
                                 <option value='<%=option.value%>' <%=option.selected%>><%=option.text%></option>
                             <%})%>
@@ -34,7 +34,8 @@
                     <div class="weui_cell">
                         <div class="weui_cell_hd"><label for="" class="weui_label">姓名</label></div>
                         <div class="weui_cell_bd weui_cell_primary">
-                            <input class="weui_input" type="text" value="">
+                            <input class="weui_input" type="text" id="MainIssues_InsureUser" name="ctl00$MainIssues$InsureUser"
+                            value="<%=insuranceFormInfoDefault['ctl00$MainIssues$InsureUser']%>">
                         </div>
                     </div>
                     <div class="weui_cell weui_cells_radio">
@@ -69,7 +70,7 @@
                             <label for="" class="weui_label">证件类型</label>
                         </div>
                         <div class="weui_cell_bd weui_cell_primary">
-                            <select class="weui_select" name="ctl00$TopIssues$InsureIdType" id="MainIssues_InsureIdType">
+                            <select class="weui_select" name="ctl00$MainIssues$InsureIdType" id="MainIssues_InsureIdType">
                                 <%insuranceFormInfoSelect.MainIssues_InsureIdType.options.forEach(function(option, index){%>
                                     <option value='<%=option.value%>' <%=option.selected%>><%=option.text%></option>
                                 <%})%>
@@ -80,7 +81,8 @@
                         <div class="weui_cell_hd"><label for="" class="weui_label">证件号码</label></div>
                         <div class="weui_cell_bd weui_cell_primary">
                             <input class="weui_input" type="text" name="ctl00$MainIssues$InsureIdNumber" 
-                            id="MainIssues_InsureIdNumber" value="">
+                            id="MainIssues_InsureIdNumber" onblur="return ParsePaperNO();" 
+                            value="<%=insuranceFormInfoDefault['ctl00$MainIssues$InsureIdNumber']%>">
                         </div>
                     </div>
                     <div class="weui_cell weui_cell_select weui_select_after">
@@ -88,7 +90,7 @@
                             <label for="" class="weui_label">保险期限</label>
                         </div>
                         <div class="weui_cell_bd weui_cell_primary">
-                            <select class="weui_select" name="ctl00$TopIssues$InsureDays" id="MainIssues_InsureDays">
+                            <select class="weui_select" name="ctl00$MainIssues$InsureDays" id="MainIssues_InsureDays">
                                 <%insuranceFormInfoSelect.MainIssues_InsureDays.options.forEach(function(option, index){%>
                                     <option value='<%=option.value%>' <%=option.selected%>><%=option.text%></option>
                                 <%})%>
@@ -99,33 +101,41 @@
                         <div class="weui_cell_hd"><label for="" class="weui_label">出生日期</label></div>
                         <div class="weui_cell_bd weui_cell_primary">
                             <input class="weui_input" type="date" name="ctl00$MainIssues$InsureBirthDate" 
-                            id="MainIssues_InsureBirthDate" value="" placeholder="">
+                            id="MainIssues_InsureBirthDate" 
+                            value="<%=insuranceFormInfoDefault['ctl00$MainIssues$InsureBirthDate']%>">
                         </div>
                     </div>
                     <div class="weui_cell">
                         <div class="weui_cell_hd"><label for="" class="weui_label">手机号码</label></div>
                         <div class="weui_cell_bd weui_cell_primary">
                             <input class="weui_input" type="number" pattern="[0-9]*" name="ctl00$MainIssues$InsurePhone" 
-                            id="MainIssues_InsurePhone" value="" placeholder="">
+                            id="MainIssues_InsurePhone" 
+                            value="<%=insuranceFormInfoDefault['ctl00$MainIssues$InsurePhone']%>">
                         </div>
                     </div>
                     <div class="weui_cell">
                         <div class="weui_cell_hd"><label for="" class="weui_label">航班号</label></div>
                         <div class="weui_cell_bd weui_cell_primary">
                             <input class="weui_input" type="text" name="ctl00$MainIssues$InsureMark" 
-                            id="MainIssues_InsureMark" value="" placeholder="">
+                            id="MainIssues_InsureMark" 
+                            value="<%=insuranceFormInfoDefault['ctl00$MainIssues$InsureMark']%>">
                         </div>
                     </div>
                     <div class="weui_cell">
                         <div class="weui_cell_hd"><label for="" class="weui_label">承保日期</label></div>
                         <div class="weui_cell_bd weui_cell_primary">
                             <input class="weui_input" type="datetime-local" name="ctl00$MainIssues$InsureBeginTime" 
-                            id="MainIssues_InsureBeginTime" value="" placeholder="">
+                            id="MainIssues_InsureBeginTime" 
+                            value="<%=insuranceFormInfoDefault['ctl00$MainIssues$InsureBeginTime']%>">
                         </div>
                     </div>
                 </div>
 
                 
+            </div>
+
+            <div class="weui_btn_area">
+                <a class="weui_btn weui_btn_primary" href="javascript:;" onclick="doSubmit();" id="showTooltips">确定</a>
             </div>
             <!-- <div class="weui_cells">
                 <%Object.keys(insuranceFormInfoDefault).forEach(function(key){%>
@@ -142,4 +152,8 @@
     </div>
     <% include footer.ejs %>
 </body>
+<script type="text/javascript">
+    
+
+</script>
 </html>

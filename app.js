@@ -24,10 +24,10 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(expressSession({
-                         secret: 'insurance',
-                         resave: false,
-                         saveUninitialized: true
-                       }));
+               secret: 'insurance',
+               resave: false,
+               saveUninitialized: true
+             }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);

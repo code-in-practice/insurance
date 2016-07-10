@@ -8,9 +8,25 @@
  var jqueryFile = fs.readFileSync(__dirname + "/jquery.js", "utf-8");
  var iconv = require('iconv-lite');
  var BufferHelper = require('bufferhelper');
+ var constant = require('./constant');
 
  var winston = require('winston');
  winston.level = 'debug';
+
+ var logger = new (winston.Logger)({
+  transports: [
+    new (winston.transports.Console)({
+      timestamp: function() {
+        return new Date();
+      },
+      formatter: function(options) {
+        // Return string will be passed to logger.
+        return options.timestamp() +' '+ options.level.toUpperCase() +' '+ (undefined !== options.message ? options.message : '') +
+          (options.meta && Object.keys(options.meta).length ? '\n\t'+ JSON.stringify(options.meta) : '' );
+      }
+    })
+  ]
+});
 
  var userAgent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.79 Safari/537.36';
 
@@ -56,13 +72,13 @@
           for(var i=0; i < noUseParamNames.length; i++) {
             delete loginFormInfo[noUseParamNames[i]];
           }
-          winston.debug('loginFormInfo', loginFormInfo);
+          // logger.info('loginFormInfo', loginFormInfo);
           callback(loginFormInfo);
         }
       });
     });
   }).on('error', function (err) {
-    winston.info(err);
+    logger.info(err);
   });
 
 };
@@ -83,14 +99,14 @@
     formData: formDataObj
   };
 
-    //winston.debug(formDataObj);
+    //logger.info(formDataObj);
     var cookies = [];
 
     request.post(options, function (error, response, body) {
       if(response.headers['set-cookie']) {
         response.headers['set-cookie'].forEach(function (item, i) {
           cookies.push(item);
-                //winston.debug(item, i);
+                //logger.info(item, i);
               });
       }
       callback(cookies);
@@ -137,17 +153,17 @@
             var userItem = {};
             userItem.desc = $(this).find('th').text().trim();
             userItem.val = $(this).find('td').text().trim();
-                                  //winston.debug('item.desc', userItem.desc);
-                                  //winston.debug('item.val', userItem.val);
+                                  //logger.info('item.desc', userItem.desc);
+                                  //logger.info('item.val', userItem.val);
                                   userItems.push(userItem);
                                 });
-          winston.debug('userItems', userItems);
+          // logger.info('userItems', userItems);
           callback(userItems);
         }
       });
     });
   }).on('error', function (err) {
-    winston.info(err);
+    logger.info(err);
   });
 };
 
@@ -164,7 +180,7 @@
     cookieHeaders.push(cookies[i].split(';')[0]);
   }
   var cookieStr = cookieHeaders.join(';');
-  winston.debug('cookieStr', cookieStr);
+  logger.info('cookieStr', cookieStr);
 
   var options = {
     url: url,
@@ -205,13 +221,13 @@
             }
             orderItems.push(orderItem);
           });
-          winston.debug('orderItems', orderItems);
+          // logger.info('orderItems', orderItems);
           callback(orderItems);
         }
       });
     });
   }).on('error', function (err) {
-    winston.info(err);
+    logger.warn(err);
   });
 };
 
@@ -221,6 +237,7 @@
  * @param callback
  */
  exports.insurancePolicyInfoGet = function (cookies, callback) {
+  logger.info('---------------insurancePolicyInfoGet-------------------');
   var url = 'http://travel.pipi88.cn/Rescue/DocumentsManager/DocumentsInsert.aspx';
 
   var cookieHeaders = [];
@@ -228,7 +245,7 @@
     cookieHeaders.push(cookies[i].split(';')[0]);
   }
   var cookieStr = cookieHeaders.join(';');
-  winston.debug('cookieStr', cookieStr);
+  logger.info('cookieStr', cookieStr);
 
   var options = {
     url: url,
@@ -251,19 +268,27 @@
 
     });
   }).on('error', function (err) {
-    winston.info(err);
+    logger.warn(err);
+    var err = {
+      code: constant.errConst.errCode.nologin,
+      msg: constant.errConst.errMsg.nologin,
+    }
+    callback(err);
   });
 };
 
 exports.insurancePolicyInfoPost = function (cookies, insuranceFormInfoPost, callback) {
+  logger.info('---------------insurancePolicyInfoPost-------------------');
   var url = 'http://travel.pipi88.cn/Rescue/DocumentsManager/DocumentsInsert.aspx';
-  winston.info('---------------post-------------------');
 
   var cookieHeaders = [];
   for(var i=0; i<cookies.length; i++) {
     cookieHeaders.push(cookies[i].split(';')[0]);
   }
   var cookieStr = cookieHeaders.join(';');
+
+  insuranceFormInfoPost['ctl00$MainIssues$InsureUser'] = 
+  iconv.encode(insuranceFormInfoPost['ctl00$MainIssues$InsureUser'], 'GBK');
 
   var options = {
     url: url,
@@ -275,6 +300,7 @@ exports.insurancePolicyInfoPost = function (cookies, insuranceFormInfoPost, call
     formData: insuranceFormInfoPost
   };
 
+  logger.info('options: ', JSON.stringify(options, null, '  '));
   request.post(options).on('response', function (res) {
     var bufferHelper = new BufferHelper();
     res.on('data', function (chunk) {
@@ -287,144 +313,244 @@ exports.insurancePolicyInfoPost = function (cookies, insuranceFormInfoPost, call
 
     });
   }).on('error', function (err) {
-    winston.info(err);
+    logger.warn(err);
+    var err = {
+      code: constant.errConst.errCode.nologin,
+      msg: constant.errConst.errMsg.nologin,
+    }
+    callback(err);
+
+  });
+};
+
+exports.insurancePolicyInfoSubmit = function (cookies, insuranceFormInfoPost, callback) {
+  logger.info('---------------insurancePolicyInfoSubmit-------------------');
+  var url = 'http://travel.pipi88.cn/Rescue/DocumentsManager/DocumentsInsert.aspx';
+
+  var cookieHeaders = [];
+  for(var i=0; i<cookies.length; i++) {
+    cookieHeaders.push(cookies[i].split(';')[0]);
+  }
+  var cookieStr = cookieHeaders.join(';');
+
+  insuranceFormInfoPost['ctl00$MainIssues$InsureUser'] = 
+  iconv.encode(insuranceFormInfoPost['ctl00$MainIssues$InsureUser'], 'GBK');
+  insuranceFormInfoPost['ctl00$BottomIssues$btnSave'] = 
+  iconv.encode(insuranceFormInfoPost['ctl00$BottomIssues$btnSave'], 'GBK');
+
+  var options = {
+    url: url,
+    encoding: null,
+    headers: {
+      'Cookie': cookieStr,
+      'User-Agent': userAgent
+    },
+    formData: insuranceFormInfoPost
+  };
+
+  logger.info('options: ', JSON.stringify(options, null, '  '));
+  request.post(options).on('response', function (res) {
+    var bufferHelper = new BufferHelper();
+    res.on('data', function (chunk) {
+      bufferHelper.concat(chunk);
+    }).on('end', function () {
+      var result = iconv.decode(bufferHelper.toBuffer(), 'GBK');
+      parseInsuranceFormSubmit(result, function (err, insuranceFormInfo) {
+        callback(err, insuranceFormInfo);
+      })
+    });
+  }).on('error', function (err) {
+    logger.warn(err);
+    var err = {
+      code: constant.errConst.errCode.nologin,
+      msg: constant.errConst.errMsg.nologin,
+    }
+    callback(err);
+
   });
 };
 
 var parseInsuranceFormInfo = function (html, callback) {
-  var insuranceFormInfoDefault = {};
-  var insuranceFormInfoSelect = {};
-  var insuranceFormInfo = {};
-  var TopIssues_ServiceId = {};
-  var TopIssues_ProductId = {};
-  var MainIssues_InsureIdType = {};
-  var MainIssues_InsureDays = {};
-  var MainIssues_InsureSex_0 = {};
-  var MainIssues_InsureSex_1 = {};
-  jsdom.env(
-  {
-    html: html,
-    src: [jqueryFile],
-    done: function (err, window) {
+  // logger.info('html: ', html);
+  if(html.indexOf('NullReferenceException') != -1){
+    var err = {
+      code: constant.errConst.errCode.nologin,
+      msg: 'NullReferenceException',
+    }
+    callback(err);
+  }else if(html.indexOf('ArgumentException') != -1){
+    // 参数错误
+    var err = {
+      code: constant.errConst.errCode.nologin,
+      msg: 'ArgumentException',
+    }
+    callback(err);
+  }else {
+    var insuranceFormInfoDefault = {};
+    var insuranceFormInfoSelect = {};
+    var insuranceFormInfo = {};
+    var TopIssues_ServiceId = {};
+    var TopIssues_ProductId = {};
+    var MainIssues_InsureIdType = {};
+    var MainIssues_InsureDays = {};
+    var MainIssues_InsureSex_0 = {};
+    var MainIssues_InsureSex_1 = {};
+    jsdom.env(
+    {
+      html: html,
+      src: [jqueryFile],
+      done: function (err, window) {
       var $ = window.$;
                 // 找到所有input
 
-                TopIssues_ServiceId.name = 'TopIssues_ServiceId';
-                var options = [];
-                window.$("select#TopIssues_ServiceId option").each(function () {
-                  var option = {};
-                  option.value = $(this).val();
-                  option.text = $(this).text();
-                  if($(this).attr('selected')){
-                    option.selected = 'selected';
-                  }
-                  options.push(option);
+          TopIssues_ServiceId.name = 'TopIssues_ServiceId';
+          var options = [];
+          window.$("select#TopIssues_ServiceId option").each(function () {
+            var option = {};
+            option.value = $(this).val();
+            option.text = $(this).text();
+            if($(this).attr('selected')){
+              option.selected = 'selected';
+            }
+            options.push(option);
 
-                });
-                TopIssues_ServiceId.options = options;
-                //winston.debug('TopIssues_ServiceId: ', JSON.stringify(TopIssues_ServiceId, null, '  '));
+          });
+          TopIssues_ServiceId.options = options;
+          //logger.info('TopIssues_ServiceId: ', JSON.stringify(TopIssues_ServiceId, null, '  '));
 
-                TopIssues_ProductId.name = 'TopIssues_ProductId';
-                var options = [];
-                window.$("select#TopIssues_ProductId option").each(function () {
-                  var option = {};
-                  option.value = $(this).val();
-                  option.text = $(this).text();
-                  if($(this).attr('selected')){
-                    option.selected = 'selected';
-                  }
-                  options.push(option);
+          TopIssues_ProductId.name = 'TopIssues_ProductId';
+          var options = [];
+          window.$("select#TopIssues_ProductId option").each(function () {
+            var option = {};
+            option.value = $(this).val();
+            option.text = $(this).text();
+            if($(this).attr('selected')){
+              option.selected = 'selected';
+            }
+            options.push(option);
 
-                });
-                TopIssues_ProductId.options = options;
-                // winston.debug('TopIssues_ProductId: ', JSON.stringify(TopIssues_ProductId, null, '  '));
+          });
+          TopIssues_ProductId.options = options;
+          // logger.info('TopIssues_ProductId: ', JSON.stringify(TopIssues_ProductId, null, '  '));
 
-                MainIssues_InsureIdType.name = '证件类型';
-                var options = [];
-                window.$("select#MainIssues_InsureIdType option").each(function () {
-                  var option = {};
-                  option.value = $(this).val();
-                  option.text = $(this).text();
-                  if($(this).attr('selected')){
-                    option.selected = 'selected';
-                  }
-                  options.push(option);
+          MainIssues_InsureIdType.name = '证件类型';
+          var options = [];
+          window.$("select#MainIssues_InsureIdType option").each(function () {
+            var option = {};
+            option.value = $(this).val();
+            option.text = $(this).text();
+            if($(this).attr('selected')){
+              option.selected = 'selected';
+            }
+            options.push(option);
 
-                });
-                MainIssues_InsureIdType.options = options;
-                // winston.debug('MainIssues_InsureIdType: ', JSON.stringify(MainIssues_InsureIdType, null, '  '));
+          });
+          MainIssues_InsureIdType.options = options;
+          // logger.info('MainIssues_InsureIdType: ', JSON.stringify(MainIssues_InsureIdType, null, '  '));
 
-                MainIssues_InsureDays.name = '保险期限';
-                var options = [];
-                window.$("select#MainIssues_InsureDays option").each(function () {
-                  var option = {};
-                  option.value = $(this).val();
-                  option.text = $(this).text();
-                  if($(this).attr('selected')){
-                    option.selected = 'selected';
-                  }
-                  options.push(option);
+          MainIssues_InsureDays.name = '保险期限';
+          var options = [];
+          window.$("select#MainIssues_InsureDays option").each(function () {
+            var option = {};
+            option.value = $(this).val();
+            option.text = $(this).text();
+            if($(this).attr('selected')){
+              option.selected = 'selected';
+            }
+            options.push(option);
 
-                });
-                MainIssues_InsureDays.options = options;
-                // winston.debug('MainIssues_InsureDays: ', JSON.stringify(MainIssues_InsureDays, null, '  '));
+          });
+          MainIssues_InsureDays.options = options;
+          // logger.info('MainIssues_InsureDays: ', JSON.stringify(MainIssues_InsureDays, null, '  '));
 
-                MainIssues_InsureSex_0.name = '性别';
-                MainIssues_InsureSex_0.value = window.$("input#MainIssues_InsureSex_0").val();
-                if(window.$("input#MainIssues_InsureSex_0").attr('checked')){
-                  MainIssues_InsureSex_0.checked = 'checked="checked"';
+          MainIssues_InsureSex_0.name = '性别';
+          MainIssues_InsureSex_0.value = window.$("input#MainIssues_InsureSex_0").val();
+          if(window.$("input#MainIssues_InsureSex_0").attr('checked')){
+            MainIssues_InsureSex_0.checked = 'checked="checked"';
+          }
+          // logger.info('MainIssues_InsureSex_0: ', JSON.stringify(MainIssues_InsureSex_0, null, '  '));
+
+          MainIssues_InsureSex_1.name = '性别';
+          MainIssues_InsureSex_1.value = window.$("input#MainIssues_InsureSex_1").val();
+          if(window.$("input#MainIssues_InsureSex_1").attr('checked')){
+            MainIssues_InsureSex_1.checked = 'checked="checked"';
+          }
+          // logger.info('MainIssues_InsureSex_1: ', JSON.stringify(MainIssues_InsureSex_1, null, '  '));
+          
+          window.$("form#form1 input, form#form1 select").each(function () {
+            var nodeName = $(this).prop('nodeName');
+            var name = $(this).attr('name');
+            var value = '';
+            var textOrSelect = true;
+            if(nodeName === 'INPUT'){
+              if($(this).attr('type') === 'checkbox'){
+                textOrSelect = false;
+                if($(this).attr('checked') === 'checked'){
+                  value = 'on';
+                  insuranceFormInfoDefault[name] = value;
                 }
-                // winston.debug('MainIssues_InsureSex_0: ', JSON.stringify(MainIssues_InsureSex_0, null, '  '));
-
-                MainIssues_InsureSex_1.name = '性别';
-                MainIssues_InsureSex_1.value = window.$("input#MainIssues_InsureSex_1").val();
-                if(window.$("input#MainIssues_InsureSex_1").attr('checked')){
-                  MainIssues_InsureSex_1.checked = 'checked="checked"';
-                }
-                // winston.debug('MainIssues_InsureSex_1: ', JSON.stringify(MainIssues_InsureSex_1, null, '  '));
-                
-                window.$("form#form1 input, form#form1 select").each(function () {
-                  var nodeName = $(this).prop('nodeName');
-                  var name = $(this).attr('name');
-                  var value = '';
-                  var textOrSelect = true;
-                  if(nodeName === 'INPUT'){
-                    if($(this).attr('type') === 'checkbox'){
-                      textOrSelect = false;
-                      if($(this).attr('checked') === 'checked'){
-                        value = 'on';
-                        insuranceFormInfoDefault[name] = value;
-                      }
-                    }else if($(this).attr('type') === 'radio') {
-                      textOrSelect = false;
-                      value = window.$("input[name='"+name+"']:checked").val();
-                      insuranceFormInfoDefault[name] = value;
-                    }else {
-                  // text or hidden
-                  value = $(this).val();
-                }
-              }else if(nodeName = 'SELECT') {
-                value = $($(this).find('option:selected')).val();
-                // winston.debug('selected name: ', name, ': ', $($(this).find('option:selected')).text(), 'value: ', value);
-              }else {
-                //winston.debug('nodeName is :', nodeName);
-              }
-              if(textOrSelect){
+              }else if($(this).attr('type') === 'radio') {
+                textOrSelect = false;
+                value = window.$("input[name='"+name+"']:checked").val();
                 insuranceFormInfoDefault[name] = value;
-              }
-            });
-                 insuranceFormInfoSelect.TopIssues_ServiceId = TopIssues_ServiceId;
-                 insuranceFormInfoSelect.TopIssues_ProductId = TopIssues_ProductId;
-                 insuranceFormInfoSelect.MainIssues_InsureIdType = MainIssues_InsureIdType;
-                 insuranceFormInfoSelect.MainIssues_InsureDays = MainIssues_InsureDays;
-                 insuranceFormInfoSelect.MainIssues_InsureSex_0 = MainIssues_InsureSex_0;
-                 insuranceFormInfoSelect.MainIssues_InsureSex_1 = MainIssues_InsureSex_1;
-                 insuranceFormInfo.default = insuranceFormInfoDefault;
-                 insuranceFormInfo.select = insuranceFormInfoSelect;
+              }else {
+            // text or hidden
+            value = $(this).val();
+          }
+        }else if(nodeName = 'SELECT') {
+          value = $($(this).find('option:selected')).val();
+          // logger.info('selected name: ', name, ': ', $($(this).find('option:selected')).text(), 'value: ', value);
+        }else {
+          //logger.info('nodeName is :', nodeName);
+        }
+        if(textOrSelect){
+          insuranceFormInfoDefault[name] = value;
+        }
+      });
+       insuranceFormInfoSelect.TopIssues_ServiceId = TopIssues_ServiceId;
+       insuranceFormInfoSelect.TopIssues_ProductId = TopIssues_ProductId;
+       insuranceFormInfoSelect.MainIssues_InsureIdType = MainIssues_InsureIdType;
+       insuranceFormInfoSelect.MainIssues_InsureDays = MainIssues_InsureDays;
+       insuranceFormInfoSelect.MainIssues_InsureSex_0 = MainIssues_InsureSex_0;
+       insuranceFormInfoSelect.MainIssues_InsureSex_1 = MainIssues_InsureSex_1;
+       insuranceFormInfo.default = insuranceFormInfoDefault;
+       insuranceFormInfo.select = insuranceFormInfoSelect;
 
-      winston.debug('insuranceFormInfo', JSON.stringify(insuranceFormInfo, null, '  '));
-      callback(null, insuranceFormInfo);
-    }
+        // logger.info('insuranceFormInfo', JSON.stringify(insuranceFormInfo, null, '  '));
+        callback(null, insuranceFormInfo);
+      }
+    });
   }
-  );
+};
+
+
+var parseInsuranceFormSubmit = function (html, callback) {
+  // logger.info('html: ', html);
+  if(html.indexOf('NullReferenceException') != -1){
+    var err = {
+      code: constant.errConst.errCode.nologin,
+      msg: 'NullReferenceException',
+    }
+    callback(err);
+  }else if(html.indexOf('ArgumentException') != -1){
+    // 参数错误
+    var err = {
+      code: constant.errConst.errCode.nologin,
+      msg: 'ArgumentException',
+    }
+    callback(err);
+  }else {
+    var submitResult = {};
+    jsdom.env(
+    {
+      html: html,
+      src: [jqueryFile],
+      done: function (err, window) {
+        var $ = window.$;
+        submitResult.msg = window.$("#ctl01aCnt").text();
+        submitResult.html = html;
+        callback(null, submitResult);
+      }
+    });
+  }
 };
