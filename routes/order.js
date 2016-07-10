@@ -21,21 +21,21 @@ router.get('/', function(req, res, next) {
   if(cookies) {
     var serviceId = req.query.serviceId;
     var productId = req.query.productId;
-    var insuranceFormInfo = req.session.insuranceFormInfo;
-    if(serviceId && productId && insuranceFormInfo){
-      insuranceFormInfo['ctl00$TopIssues$ServiceId'] = serviceId;
-      insuranceFormInfo['ctl00$TopIssues$ProductId'] = productId;
-      insuranceFormInfo['__EVENTTARGET'] = 'ctl00$TopIssues$ServiceId';
-      delete insuranceFormInfo['ctl00$BottomIssues$btnSave'];
-      delete insuranceFormInfo['ctl00$BottomIssues$btnReset'];
-      requestHelper.insurancePolicyInfoPost(cookies, insuranceFormInfo, function (err, insuranceFormInfo) {
+    var insuranceFormInfoPost = req.session.insuranceFormInfo;
+    if(serviceId && productId && insuranceFormInfoPost){
+      insuranceFormInfoPost['ctl00$TopIssues$ServiceId'] = serviceId;
+      insuranceFormInfoPost['ctl00$TopIssues$ProductId'] = productId;
+      insuranceFormInfoPost['__EVENTTARGET'] = 'ctl00$TopIssues$ServiceId';
+      delete insuranceFormInfoPost['ctl00$BottomIssues$btnSave'];
+      delete insuranceFormInfoPost['ctl00$BottomIssues$btnReset'];
+      requestHelper.insurancePolicyInfoPost(cookies, insuranceFormInfoPost, function (err, insuranceFormInfo) {
         req.session.insuranceFormInfo = insuranceFormInfo;
-        res.render('order', {title: "保单录入", insuranceFormInfo: insuranceFormInfo});
+        res.render('order', {title: "保单录入", insuranceFormInfoDefault: insuranceFormInfo.default, insuranceFormInfoSelect: insuranceFormInfo.select});
       });
     }else {
       requestHelper.insurancePolicyInfoGet(cookies, function (err, insuranceFormInfo) {
         req.session.insuranceFormInfo = insuranceFormInfo;
-        res.render('order', {title: "保单录入", insuranceFormInfo: insuranceFormInfo});
+        res.render('order', {title: "保单录入", insuranceFormInfoDefault: insuranceFormInfo.default, insuranceFormInfoSelect: insuranceFormInfo.select});
       });
     }
   }else {

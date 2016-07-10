@@ -2,24 +2,47 @@
 <html>
 <% include header.ejs %>
 <body ontouchstart="">
-<div class="container">
-    <div class="hd">
-        <h1 class="page_title"><%= title %></h1>
-    </div>
-    <div class="bd">
-        <div class="weui_cells">
-            <%Object.keys(insuranceFormInfo).forEach(function(key){%>
+    <div class="container">
+        <div class="hd">
+            <h1 class="page_title"><%= title %></h1>
+        </div>
+        <div class="bd">
+            <div class="weui_cells">
+                <div class="weui_cell weui_cell_select">
+                    <div class="weui_cell_bd weui_cell_primary">
+                        <select class="weui_select" name="ctl00$TopIssues$ServiceId" id="TopIssues_ServiceId">
+                            <option selected="" value="1">微信号</option>
+                            <option value="2">QQ号</option>
+                            <option value="3">Email</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="weui_cell weui_cell_select weui_select_after">
+                    <div class="weui_cell_hd">
+                        <label for="" class="weui_label">国家/地区</label>
+                    </div>
+                    <div class="weui_cell_bd weui_cell_primary">
+                        <select class="weui_select" name="ctl00$TopIssues$ProductId" id="TopIssues_ProductId">
+                            <option value="1">中国</option>
+                            <option value="2">美国</option>
+                            <option value="3">英国</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="weui_cells">
+                <%Object.keys(insuranceFormInfoDefault).forEach(function(key){%>
                 <div class="weui_cell">
                     <div class="weui_cell_bd weui_cell_primary">
                         <p><%= key %></p>
                     </div>
-                    <div class="weui_cell_ft"><%= insuranceFormInfo[key] %></div>
+                    <div class="weui_cell_ft"><%= insuranceFormInfoDefault[key] %></div>
                 </div>
-            <%})%>
+                <%})%>
+            </div>
         </div>
-    </div>
 
-</div>
-<% include footer.ejs %>
+    </div>
+    <% include footer.ejs %>
 </body>
 </html>
