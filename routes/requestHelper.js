@@ -299,6 +299,8 @@ var parseInsuranceFormInfo = function (html, callback) {
   var TopIssues_ProductId = {};
   var MainIssues_InsureIdType = {};
   var MainIssues_InsureDays = {};
+  var MainIssues_InsureSex_0 = {};
+  var MainIssues_InsureSex_1 = {};
   jsdom.env(
   {
     html: html,
@@ -367,6 +369,20 @@ var parseInsuranceFormInfo = function (html, callback) {
                 MainIssues_InsureDays.options = options;
                 // winston.debug('MainIssues_InsureDays: ', JSON.stringify(MainIssues_InsureDays, null, '  '));
 
+                MainIssues_InsureSex_0.name = '性别';
+                MainIssues_InsureSex_0.value = window.$("input#MainIssues_InsureSex_0").val();
+                if(window.$("input#MainIssues_InsureSex_0").attr('checked')){
+                  MainIssues_InsureSex_0.checked = 'checked="checked"';
+                }
+                // winston.debug('MainIssues_InsureSex_0: ', JSON.stringify(MainIssues_InsureSex_0, null, '  '));
+
+                MainIssues_InsureSex_1.name = '性别';
+                MainIssues_InsureSex_1.value = window.$("input#MainIssues_InsureSex_1").val();
+                if(window.$("input#MainIssues_InsureSex_1").attr('checked')){
+                  MainIssues_InsureSex_1.checked = 'checked="checked"';
+                }
+                // winston.debug('MainIssues_InsureSex_1: ', JSON.stringify(MainIssues_InsureSex_1, null, '  '));
+                
                 window.$("form#form1 input, form#form1 select").each(function () {
                   var nodeName = $(this).prop('nodeName');
                   var name = $(this).attr('name');
@@ -401,6 +417,8 @@ var parseInsuranceFormInfo = function (html, callback) {
                  insuranceFormInfoSelect.TopIssues_ProductId = TopIssues_ProductId;
                  insuranceFormInfoSelect.MainIssues_InsureIdType = MainIssues_InsureIdType;
                  insuranceFormInfoSelect.MainIssues_InsureDays = MainIssues_InsureDays;
+                 insuranceFormInfoSelect.MainIssues_InsureSex_0 = MainIssues_InsureSex_0;
+                 insuranceFormInfoSelect.MainIssues_InsureSex_1 = MainIssues_InsureSex_1;
                  insuranceFormInfo.default = insuranceFormInfoDefault;
                  insuranceFormInfo.select = insuranceFormInfoSelect;
 
