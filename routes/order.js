@@ -26,7 +26,7 @@ router.get('/history', function(req, res, next) {
   var cookies = req.session.asp;
   if(cookies) {
     requestHelper.historicalRecordsList(cookies, function (orderItems) {
-      res.render('orderHistory', {title: "代理保单", orderItems: orderItems});
+      res.render('orderHistory', {title: "保单查询", orderItems: orderItems, path:'/order/history'});
     });
   }else {
     res.redirect('/login');
@@ -59,7 +59,7 @@ router.get('/', function(req, res, next) {
           }
         }else{
           req.session.insuranceFormInfoDefault = insuranceFormInfo.default;
-          res.render('order', {title: "保单录入", insuranceFormInfoDefault: insuranceFormInfo.default, insuranceFormInfoSelect: insuranceFormInfo.select});
+          res.render('order', {title: "保单录入", insuranceFormInfoDefault: insuranceFormInfo.default, insuranceFormInfoSelect: insuranceFormInfo.select, path:'/order'});
         }
       });
     }else {
@@ -71,7 +71,7 @@ router.get('/', function(req, res, next) {
           }
         }else{
           req.session.insuranceFormInfoDefault = insuranceFormInfo.default;
-          res.render('order', {title: "保单录入", insuranceFormInfoDefault: insuranceFormInfo.default, insuranceFormInfoSelect: insuranceFormInfo.select});
+          res.render('order', {title: "保单录入", insuranceFormInfoDefault: insuranceFormInfo.default, insuranceFormInfoSelect: insuranceFormInfo.select, path:'/order'});
         }
       });
     }
@@ -88,7 +88,7 @@ router.post('/', function(req, res, next) {
     var formData = req.body;
     winston.info('req.body: ', req.body);
     Object.keys(formData).forEach(function(key){
-      winston.info(formData[key]);
+      // winston.info(formData[key]);
       insuranceFormInfoPost[key] = formData[key];
     })
     // always delete this key
@@ -110,11 +110,15 @@ router.post('/', function(req, res, next) {
       });
 
     }else if(formData['__EVENTTARGET'] == 'ctl00$TopIssues$ServiceId'){
-      res.send('hello');
+      res.redirect('/order');
     }
   }else {
     res.redirect('/login');
   }
+});
+
+router.get('/success', function(req, res){
+  res.render('orderSuccess', {title: "成功"});
 });
 
 module.exports = router;

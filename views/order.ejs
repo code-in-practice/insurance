@@ -2,7 +2,9 @@
 <html>
 <% include header.ejs %>
 <body ontouchstart="">
-    <div class="container">
+<div class="weui_tab">
+    <% include navbar.ejs%>
+    <div class="weui_tab_bd">
         <div class="hd">
             <h1 class="page_title"><%= title %></h1>
         </div>
@@ -124,7 +126,7 @@
                     <div class="weui_cell">
                         <div class="weui_cell_hd"><label for="" class="weui_label">承保日期</label></div>
                         <div class="weui_cell_bd weui_cell_primary">
-                            <input class="weui_input" type="datetime-local" name="ctl00$MainIssues$InsureBeginTime" 
+                            <input class="weui_input" type="date" name="ctl00$MainIssues$InsureBeginTime" 
                             id="MainIssues_InsureBeginTime" 
                             value="<%=insuranceFormInfoDefault['ctl00$MainIssues$InsureBeginTime']%>">
                         </div>
@@ -135,21 +137,11 @@
             </div>
 
             <div class="weui_btn_area">
-                <a class="weui_btn weui_btn_primary" href="javascript:;" onclick="doSubmit();" id="showTooltips">确定</a>
+                <a class="weui_btn weui_btn_primary" href="javascript:;" onclick="doSubmit();" id="order_submit_btn">确定</a>
             </div>
-            <!-- <div class="weui_cells">
-                <%Object.keys(insuranceFormInfoDefault).forEach(function(key){%>
-                <div class="weui_cell">
-                    <div class="weui_cell_bd weui_cell_primary">
-                        <p><%= key %></p>
-                    </div>
-                    <div class="weui_cell_ft"><%= insuranceFormInfoDefault[key] %></div>
-                </div>
-                <%})%>
-            </div> -->
         </div>
-
     </div>
+</div>
     <% include footer.ejs %>
 </body>
 <script type="text/javascript">

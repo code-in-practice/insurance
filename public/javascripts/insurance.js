@@ -3,7 +3,11 @@
  */
 
 function doLogin(thisDOM) {
-    $("#login").addClass("weui_btn_disabled");
+    if($("#login_submit_btn").hasClass("weui_btn_disabled")){
+        $.alert("莫着急！登录中");
+        return false;
+    }
+    $("#login_submit_btn").addClass("weui_btn_disabled");
     var username= document.getElementById('username').value;
     var password= document.getElementById('password').value;
     var captcha= document.getElementById('captcha').value;
@@ -17,7 +21,7 @@ function doLogin(thisDOM) {
     };
 
     var jqxhr = $.post(url, formData, function (data) {
-        $("#login").removeClass("weui_btn_disabled");
+        $("#login_submit_btn").removeClass("weui_btn_disabled");
         if(data.code == 0){
             window.location.href='/user';
         }else{
@@ -29,15 +33,23 @@ function doLogin(thisDOM) {
 };
 
 function doSubmit(){
+    if($("#order_submit_btn").hasClass("weui_btn_disabled")){
+        $.alert("莫着急！下单中");
+        return false;
+    }
+    $("#order_submit_btn").addClass("weui_btn_disabled");
     var url = '/order';
     var formData = getFormInfo();
     formData['__EVENTTARGET'] = 'ctl00$BottomIssues$btnSave';
     console.log('formData: ', formData);
 
     var jqxhr = $.post(url, formData, function (data) {
-        console.log(data);
-        alert(data.msg);
-        // window.location.href='/order/success';
+        $("#order_submit_btn").removeClass("weui_btn_disabled");
+        if(data.code == 0){
+            window.location.href='/order/success';
+        }else{
+            $.alert(data.msg);
+        }
     }).fail(function(response){
         $.alert('fail');
     })
@@ -75,7 +87,7 @@ function getFormInfo(){
     formData['ctl00$MainIssues$InsureBirthDate'] = $("input[name='ctl00$MainIssues$InsureBirthDate']").val();
     formData['ctl00$MainIssues$InsurePhone'] = $("input[name='ctl00$MainIssues$InsurePhone']").val();
     formData['ctl00$MainIssues$InsureMark'] = $("input[name='ctl00$MainIssues$InsureMark']").val();
-    formData['ctl00$MainIssues$InsureBeginTime'] = $("input[name='ctl00$MainIssues$InsureBeginTime']").val() || '2016-07-30 22:32';
+    formData['ctl00$MainIssues$InsureBeginTime'] = $("input[name='ctl00$MainIssues$InsureBeginTime']").val();
     return formData;
 }
 

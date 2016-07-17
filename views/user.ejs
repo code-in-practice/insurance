@@ -2,43 +2,25 @@
 <html>
 <% include header.ejs %>
 <body ontouchstart="">
-<div class="container">
-    <div class="hd">
-        <h1 class="page_title"><%= title %></h1>
-    </div>
-    <div class="bd">
-        <div class="weui_cells">
-            <% userItems.forEach(function (item) { %>
-            <div class="weui_cell">
-                <div class="weui_cell_bd weui_cell_primary">
-                    <p><%= item.desc %></p>
+<div class="weui_tab">
+    <% include navbar.ejs%>
+    <div class="weui_tab_bd">
+        <div class="hd">
+            <h1 class="page_title"><%= title %></h1>
+        </div>
+        <div class="bd">
+            <div class="weui_cells">
+                <% userItems.forEach(function (item) { %>
+                <div class="weui_cell">
+                    <div class="weui_cell_bd weui_cell_primary">
+                        <p><%= item.desc %></p>
+                    </div>
+                    <div class="weui_cell_ft"><%= item.val %></div>
                 </div>
-                <div class="weui_cell_ft"><%= item.val %></div>
+                <% }) %>
             </div>
-            <% }) %>
-        </div>
-
-        <div class="weui_cells weui_cells_access">
-            <a class="weui_cell" href="/order">
-                <div class="weui_cell_bd weui_cell_primary">
-                    <p>保单录入</p>
-                </div>
-                <div class="weui_cell_ft">
-                </div>
-            </a>
-        </div>
-        <div class="weui_cells weui_cells_access">
-            <a class="weui_cell" href="/order/history">
-                <div class="weui_cell_bd weui_cell_primary">
-                    <p>保单查询</p>
-                </div>
-                <div class="weui_cell_ft">
-                </div>
-            </a>
         </div>
     </div>
-
-</div>
 <% include footer.ejs %>
 </body>
 </html>

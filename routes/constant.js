@@ -5,6 +5,5 @@ exports.errConst = {
 	},
 	errMsg:{
 		nologin:"未登录",
-		
 	}
 }

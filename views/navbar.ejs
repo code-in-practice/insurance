@@ -1,0 +1,14 @@
+<div class="weui_navbar">
+  <a href="/user" class="weui_navbar_item 
+  		<% if (path == undefined || path=='/user') { %> weui_bar_item_on <% } %>">
+    首页
+  </a>
+  <a href="/order" class="weui_navbar_item
+  		<% if (path != undefined && path=='/order') { %> weui_bar_item_on <% } %>">
+    保单录入
+  </a>
+  <a href="/order/history" class="weui_navbar_item
+  		<% if (path != undefined && path=='/order/history') { %> weui_bar_item_on <% } %>">
+    保单查询
+  </a>
+</div>

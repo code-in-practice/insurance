@@ -280,6 +280,12 @@
   });
 };
 
+/**
+ * 保单录入页面
+ * @param cookies
+ * @param insuranceFormInfoPost
+ * @param callback
+ */
 exports.insurancePolicyInfoPost = function (cookies, insuranceFormInfoPost, callback) {
   logger.info('---------------insurancePolicyInfoPost-------------------');
   var url = 'http://travel.pipi88.cn/Rescue/DocumentsManager/DocumentsInsert.aspx';
@@ -326,6 +332,13 @@ exports.insurancePolicyInfoPost = function (cookies, insuranceFormInfoPost, call
   });
 };
 
+
+/**
+ * 保单录入
+ * @param cookies
+ * @param insuranceFormInfoPost
+ * @param callback
+ */
 exports.insurancePolicyInfoSubmit = function (cookies, insuranceFormInfoPost, callback) {
   logger.info('---------------insurancePolicyInfoSubmit-------------------');
   var url = 'http://travel.pipi88.cn/Rescue/DocumentsManager/DocumentsInsert.aspx';
@@ -373,6 +386,8 @@ exports.insurancePolicyInfoSubmit = function (cookies, insuranceFormInfoPost, ca
   });
 };
 
+
+
 var parseInsuranceFormInfo = function (html, callback) {
   // logger.info('html: ', html);
   if(html.indexOf('NullReferenceException') != -1){
@@ -404,8 +419,6 @@ var parseInsuranceFormInfo = function (html, callback) {
       src: [jqueryFile],
       done: function (err, window) {
       var $ = window.$;
-                // 找到所有input
-
           TopIssues_ServiceId.name = 'TopIssues_ServiceId';
           var options = [];
           window.$("select#TopIssues_ServiceId option").each(function () {
@@ -527,6 +540,7 @@ var parseInsuranceFormInfo = function (html, callback) {
 };
 
 
+// 解析保单录入的提交结果
 var parseInsuranceFormSubmit = function (html, callback) {
   // logger.info('html: ', html);
   if(html.indexOf('NullReferenceException') != -1){
@@ -550,8 +564,33 @@ var parseInsuranceFormSubmit = function (html, callback) {
       src: [jqueryFile],
       done: function (err, window) {
         var $ = window.$;
-        submitResult.msg = window.$("#ctl01aCnt").text();
-        submitResult.html = html;
+        var hasAlert = false;
+        var alertContent = '';
+        var scripts = window.$("script");
+        if(scripts){
+          logger.debug('scripts', scripts);
+          $(scripts).each(function () {
+            var scriptContent = $(this).html();
+            if(scriptContent.indexOf('window.alert') != -1){
+              var start = scriptContent.indexOf('(')+2;
+              var end = scriptContent.lastIndexOf(")")-1;
+              alertContent = scriptContent.substring(start, end);
+              hasAlert = true;
+            }
+          });
+        }
+        if(hasAlert){
+          submitResult.msg = alertContent;
+          submitResult.code = -1;
+        }else{
+          var popContent = window.$("#ctl01aCnt").text();
+          if(popContent.indexOf("成功") != -1){
+            submitResult.code = 0;
+          }else{
+            submitResult.code = -1;
+          }
+          submitResult.msg = popContent;
+        }
         callback(null, submitResult);
       }
     });

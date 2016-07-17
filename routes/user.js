@@ -7,7 +7,7 @@ router.get('/', function(req, res, next) {
   var cookies = req.session.asp;
   if(cookies) {
     requestHelper.userInfo(cookies, function (userItems) {
-      res.render('user', {title: "用户中心", userItems: userItems});
+      res.render('user', {title: "用户中心", userItems: userItems, path:'/user'});
     });
   }else {
     res.redirect('/login');

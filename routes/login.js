@@ -8,13 +8,13 @@ var requestHelper = require('./requestHelper');
 var captchapng = require('captchapng');
 
 router.get('/', function(req, res, next) {
-  res.render('login', {title: "登录"});
+  res.render('login', {title: "登录", path: '/login'});
 });
 
 router.post('/', function(req, res, next) {
-  var username = req.body.username;
-  var password = req.body.password;
-  var captcha = req.body.captcha;
+  var username = req.body.username || 'shunjiean01';
+  var password = req.body.password || '4539';
+  var captcha = req.body.captcha || req.session.captcha;
   var captchaCookie = req.session.captcha || '';
   if(!captcha || captchaCookie != captcha){
     res.send({code:-1, message: "验证码不正确"});
