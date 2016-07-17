@@ -103,13 +103,16 @@
     var cookies = [];
 
     request.post(options, function (error, response, body) {
-      if(response.headers['set-cookie']) {
-        response.headers['set-cookie'].forEach(function (item, i) {
+      var cookieHeaders = response.headers['set-cookie'];
+      if(cookieHeaders && cookieHeaders.length>1) {
+        cookieHeaders.forEach(function (item, i) {
           cookies.push(item);
-                //logger.info(item, i);
-              });
+          //logger.info(item, i);
+        });
+        callback(null, cookies);
+      }else{
+        callback("用户名或密码错误！");
       }
-      callback(cookies);
     });
   };
 

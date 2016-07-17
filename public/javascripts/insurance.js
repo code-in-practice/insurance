@@ -3,6 +3,7 @@
  */
 
 function doLogin(thisDOM) {
+    $("#login").addClass("weui_btn_disabled");
     var username= document.getElementById('username').value;
     var password= document.getElementById('password').value;
     var captcha= document.getElementById('captcha').value;
@@ -15,9 +16,15 @@ function doLogin(thisDOM) {
         captcha: captcha
     };
 
-    $.post(url, formData, function (data) {
-        console.log(data);
-        window.location.href='/user';
+    var jqxhr = $.post(url, formData, function (data) {
+        $("#login").removeClass("weui_btn_disabled");
+        if(data.code == 0){
+            window.location.href='/user';
+        }else{
+            $.alert(data.message);
+        }
+    }).fail(function(response){
+        $.alert('fail');
     })
 };
 
@@ -27,10 +34,12 @@ function doSubmit(){
     formData['__EVENTTARGET'] = 'ctl00$BottomIssues$btnSave';
     console.log('formData: ', formData);
 
-    $.post(url, formData, function (data) {
+    var jqxhr = $.post(url, formData, function (data) {
         console.log(data);
         alert(data.msg);
         // window.location.href='/order/success';
+    }).fail(function(response){
+        $.alert('fail');
     })
 }
 
